@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    {box-sizing: border-box;}
+
+/* Button used to open the contact form - fixed at the bottom of the page */
+.open-button {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  right: 28px;
+  width: 280px;
+}
+
+/* The popup form - hidden by default */
+.form-popup {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
+}
+
+/* Add styles to the form container */
+.form-container {
+  max-width: 300px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width input fields */
+.form-container input[type=text], .form-container input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+/* When the inputs get focus, do something */
+.form-container input[type=text]:focus, .form-container input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for the submit/login button */
+.form-container .btn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: red;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
+</style>
+<body>
+
+<div class="container">
+    <button style="margin-top: 20px;" class="float-right btn btn-primary" onclick="openForm()">Add Records</button>
+  <h2>Parking Whehicle Records</h2>           
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Sr No</th>
+        <th>Whehicle Type</th>
+        <th>No. of Hours</th>
+        <th>Amount To be paid in Rs</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for obj in data %}
+      <tr>
+        
+        <td>{{ forloop.counter }}</td>
+        <td>{{ obj.name }}</td>
+        <td>{{ obj.roll_no }}
+          <button type="button" class="btn btn-primary editBtn"
+                    data-toggle="tooltip" data-target="#exampleModal" id="edit-modal-div"
+                    data-original-title="Edit Records" data-url="{{obj.id}}"
+                    data-id="{{obj.id}}" 
+                    data-roll_no="{{obj.roll_no}}"
+                    data-name="{{ obj.name }}" 
+                    data-marks="{{obj.marks}}"
+                    >
+                    Edit
+        </button>
+        </td>
+        <td>{{ obj.marks }}</td>
+        <td>
+            <button data-toggle="tooltip" data-target=""
+            title="Delete " type="button" class="btn btn-danger deleteBtn" id="deactivate-modal-div" data-original-title="Delete mystamp"
+              data-url="{{obj.id}}" data-id="{{obj.id}}">Delete
+            </button>
+
+            
+        </td>
+        
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="form-popup" id="myForm">
+    <form action="/user-dashboard/{{user}}" class="form-container" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+      <h1>Add Form</h1>
+  
+      <label for="roll_number"><b>No of Hours</b></label>
+      <input type="text" placeholder="Enter Roll Number" name="roll_number" required>
+  
+      <label for="name"><b>Whehile Name</b></label>
+      <input type="text" placeholder="Enter Name" name="name" required>
+
+      <label for="marks"><b>Amount To be paid in Rs</b></label>
+      <input type="text" placeholder="Enter Marks" name="marks" required>
+  
+      <button type="submit" class="btn">Add</button>
+      <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+    </form>
+  </div>
+
+  <div class="modal fade" id="myEditModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+
+        <form method="POST" class="form" name="edit_role_form" id="edit_form" action="/user-dashboard/{{user}}" >
+            {% csrf_token %}
+            <input type="hidden" name="edit_user_record_id" id="edit_user_record_id" value="1">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title w-100 text-center">Edit Records</h2>
+                </div>
+                <div class="row">
+                  <input type="hidden" name="edit_record_id" id="edit_record_id">
+                  <div class="col-md-3">
+                  </div>
+                  <div class="col-md-6">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="name">No of Hours</label>
+                            <input type="text" name="edit_roll_number" class="form-control" value=""
+                                placeholder="Roll Number" id="edit_roll_number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="name">Whehile Name</label>
+                            <input type="text" name="edit_name" class="form-control" value=""
+                                placeholder="Name" id="edit_name" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="name">Amount To be paid in Rs</label>
+                            <input type="text" class="form-control" name="edit_marks" id="edit_marks" placeholder="Marks" value="" required>                         
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-primary" value="Save" data-id="">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+<script>
+  if (window.history.replaceState) {
+      window.history.replaceState(null, null, window.location.href);
+  }
+    function openForm() {
+        document.getElementById("myForm").style.display = "block";
+      }
+      
+      function closeForm() {
+        document.getElementById("myForm").style.display = "none";
+      }
+
+      $(function () {
+        $('.deleteBtn').on('click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr("data-id");
+            $.ajax({
+                type: "POST",
+                url: "/delete-records/" + id,
+                data: { csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value },
+                success: function (response) {
+                    location.reload();
+                },
+            });
+        });
+    });
+</script>
+
+<script>
+  var viewmodaldiv = $("#edit-modal-div");
+    $(".editBtn").on("click", function () {
+        var id_num = $(this).data('id')
+        var roll_no = $(this).data("roll_no");
+        var name = $(this).data('name');
+        var marks = $(this).data('marks');
+
+        $("#edit_record_id").val(id_num)
+        $('#edit_roll_number').val( roll_no);
+        $('#edit_name').val( name);
+        $('#edit_marks').val( marks);
+
+        $("#myEditModal").modal();
+    });
+    $("#edit_form").validate({
+      rules: {
+        edit_roll_number: {
+              required: true,
+             
+          }, 
+          edit_name: {
+              required: true,
+          }, 
+          
+          edit_marks: {
+            required: true,
+        }, 
+          
+      },
+
+      messages: {
+        edit_roll_number: {
+              required: "This Field is Required.",
+          },
+          edit_name: {
+              required: "This Field is Required.",
+          },
+          edit_marks: {
+            required: "This Field is Required.",
+        },
+      },
+
+  });
+</script>
+
+</html>
